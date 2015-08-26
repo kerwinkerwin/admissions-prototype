@@ -1,0 +1,26 @@
+{
+  "name": "admissions-prototype",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon app.js",
+    "quality": "standard"
+  },
+  "dependencies": {
+    "@eda/hellosign-facade": "^0.1.0",
+    "@eda/relate-facade": "^0.1.1",
+    "@eda/xero-facade": "^1.0.1",
+    "body-parser": "~1.13.2",
+    "chai": "^3.2.0",
+    "cookie-parser": "~1.3.5",
+    "debug": "~2.2.0",
+    "dotenv": "^1.2.0",
+    "express": "~4.13.1",
+    "jade": "~1.11.0",
+    "mocha": "^2.2.5",
+    "morgan": "~1.6.1",
+    "nodemon": "^1.4.1",
+    "serve-favicon": "~2.3.0",
+    "standard": "^5.1.0"
+  }
+}
