@@ -9,20 +9,23 @@ var relateCredentials = {
 };
 var relate = require('@eda/relate-facade')(relateCredentials);
 var xeroCredentials = {
-  consumerKey: process.env.CONSUMER_KEY,
-  consumerSecret: process.env.CONSUMER_SECRET,
+  consumerKey: process.env.X_CONSUMER_KEY,
+  consumerSecret: process.env.X_CONSUMER_SECRET,
   privateKey: fs.readFileSync('./keys/privatekey.pem')
 };
+var hellosignCredentials = {
+  HELLOSIGN_KEY: process.env.HELLOSIGN_KEY
+};
+var dates = require('./dates.js');
+
+var hellosign = require('@eda/hellosign-facade')(hellosignCredentials);
 var xero = require('@eda/xero-facade')(xeroCredentials);
-
-
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var hellosign = require('@eda/hellosign-facade');
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -45,17 +48,50 @@ app.get('/',function(res,req){
 
 });
 
+//change to post
 app.get('/newcontact',function(req,res){
   //Get contact from relate - Simulating a post request being made to this route
-  console.log(relateCredentials);
   relate.getContact("omalley.kerwin@gmail.com", function(response){
-    // console.log(response);
-    console.log(response.objects[0].properties.address[0].value);
-    console.log(response.objects[0].properties.phone[0].value);
-    //name
-    console.log(response.objects[0].properties.name[0].value);
-    //email
-    console.log(response.objects[0].properties.email[0].value);
+    var id  = response.objects[0].id;
+    // this is really fragile, for some reason this contact has 3 names?
+    var name = (response.objects[0].properties.name[3].value).split(" ");
+    //this needs a method to pull it from relate IQ
+    //Issue with the formatting of the date in my dates.js file
+    var cohortYear = "2016";
+    var cohortName = "Kakapo";
+    var cohortDates = dates[cohortYear][cohortName];
+
+    var firstName = name[0];
+    var lastName = name[1];
+    var email = "kerwin@enspiral.com";
+    var contactToCreate = {
+      firstName: firstName,
+      lastName: lastName,
+      emailAddress: email,
+      relateId: id
+    };
+    var hellosignStudent = {
+      name: firstName + lastName,
+      email: email,
+    };
+
+    // xero.createContact(contactToCreate,
+    //   function(err){
+    //     console.log(err);
+    //   },
+    //   function(response){
+    //     console.log(response);
+    //   }
+    // );
+    hellosign.signTemplate("terms", hellosignStudent, function(response){
+      console.log(response);
+    });
   });
-  //Create contact in Xero - set contact number as the relateiq id
+});
+
+app.get('/studentlist', function (req,res){
+  var studentListId = "55a70228e4b01fe8e5a3d93b";
+  relate.getListItems(studentListId,function(response){
+
+  });
 });
