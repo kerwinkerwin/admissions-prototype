@@ -1,4 +1,5 @@
 var express = require('express');
+var testObject = require('./test.js')();
 var app = express();
 require('dotenv').load();
 var fs = require('fs');
@@ -45,7 +46,7 @@ var server = app.listen(3000, function () {
 });
 
 app.get('/',function(res,req){
-
+  req.send("hello");
 });
 
 //change to post
@@ -83,15 +84,23 @@ app.get('/newcontact',function(req,res){
     //     console.log(response);
     //   }
     // );
-    hellosign.signTemplate("terms", hellosignStudent, function(response){
-      console.log(response);
-    });
+
   });
 });
 
-app.get('/studentlist', function (req,res){
-  var studentListId = "55a70228e4b01fe8e5a3d93b";
-  relate.getListItems(studentListId,function(response){
-
+app.get('/onboard', function (req,res){
+  relate.studentsToOnboard(function(response){
+    console.log(testObject);
+    testObject.forEach(function(student){
+      hellosign.signTemplate(null,
+        {
+          emailAddress: (student.fieldValues['138'][0].raw),
+          name: student.name
+        },
+      function(response){
+        console.log(response);
+      });
+    });
   });
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
 });
