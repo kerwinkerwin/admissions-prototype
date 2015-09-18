@@ -15,7 +15,7 @@ var xeroCredentials = {
   privateKey: fs.readFileSync('./keys/privatekey.pem')
 };
 var hellosignCredentials = {
-  HELLOSIGN_KEY: process.env.HELLOSIGN_KEY
+  apiKey: process.env.HELLOSIGN_KEY
 };
 var dates = require('./dates.js');
 
@@ -30,6 +30,7 @@ var bodyParser = require('body-parser');
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.disable('etag');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -89,18 +90,26 @@ app.get('/newcontact',function(req,res){
 });
 
 app.get('/onboard', function (req,res){
-  relate.studentsToOnboard(function(response){
-    console.log(testObject);
-    testObject.forEach(function(student){
-      hellosign.signTemplate(null,
-        {
-          emailAddress: (student.fieldValues['138'][0].raw),
-          name: student.name
-        },
-      function(response){
-        console.log(response);
-      });
-    });
+  var tester = {
+          emailAddress: "kerwin@enspiral.consumerSecret",
+          name: "Kerwin"
+        };
+
+  hellosign.signTemplate(tester,function(response){
+    console.log(response);
   });
-  res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+  // relate.studentsToOnboard(function(response){
+  //   console.log(testObject);
+  //   testObject.forEach(function(student){
+  //     console.log(student.name);
+  //     hellosign.signTemplate(
+  //       {
+  //         emailAddress: (student.fieldValues['138'][0].raw),
+  //         name: (student.name)
+  //       },
+  //     function(response){
+  //       console.log(response);
+  //     });
+  //   });
+  // });
 });
