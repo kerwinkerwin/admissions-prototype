@@ -96,8 +96,15 @@ app.get('/onboard', function (req,res){
         };
 
   hellosign.signTemplate(tester,function(response){
-    console.log(response);
+    if((response.statusCode)===200){
+
+    }
   });
+
+  create an invoice
+  xero.createAnInvoice()
+
+
   // relate.studentsToOnboard(function(response){
   //   console.log(testObject);
   //   testObject.forEach(function(student){
