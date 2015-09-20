@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@eda/hellosign-facade": "^0.1.7",
-    "@eda/relate-facade": "^0.1.75",
+    "@eda/relate-facade": "^0.1.8",
     "@eda/xero-facade": "^1.0.7",
     "body-parser": "~1.14.0",
     "chai": "^3.2.0",
