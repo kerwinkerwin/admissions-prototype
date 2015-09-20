@@ -90,19 +90,58 @@ app.get('/newcontact',function(req,res){
 });
 
 app.get('/onboard', function (req,res){
+
+  //need the dates from somewhere, maybe a separate date npm?
+  //get cohortDate, if confirmed cohort, check cohort date npm
+  // and retrieve date.
+
+  var lineItem = {
+    type: 'Deposit',
+      amount: '1000.00',
+      accountCode:'200',
+  };
   var tester = {
-          emailAddress: "kerwin@enspiral.consumerSecret",
-          name: "Kerwin"
+          name: "abdul jihadi1",
+          // contactId : "2c04ddf5-ae90-4fc8-89f2-fe9a696a77bd",
+          emailAddress: "kerwin@enspiral.com",
+          //student.contactIds[0]
+          relateId: "12344442322222ss2",
+          // lineItem: lineItem,
+          date:{
+            phaseZero: '2015-10-25'
+          }
         };
 
-  hellosign.signTemplate(tester,function(response){
-    if((response.statusCode)===200){
 
-    }
+
+
+
+  // hellosign.signTemplate(tester,function(response){
+  //   if((response.statusCode)===200){
+  //
+  //   }
+  // });
+
+  //create a contact
+  xero.createContact(tester,
+    function(err){
+      console.log(err);
+    },
+    function(response){
+    //update relateiq field with xero id
+    tester.contactId = response.Response.Contacts.Contact.ContactID;
+      xero.createAnInvoice(tester,
+        function(err){
+          console.log(err);
+        },
+        function(success){
+          console.log("success");
+          console.log(success.Response.Invoices.Invoice);
+        }
+      );
+    // send off invoice
   });
-
-  create an invoice
-  xero.createAnInvoice()
+  // xero.createAnInvoice()
 
 
   // relate.studentsToOnboard(function(response){
