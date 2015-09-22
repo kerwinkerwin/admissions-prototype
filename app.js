@@ -52,110 +52,64 @@ app.get('/',function(res,req){
 
 //change to post
 app.get('/newcontact',function(req,res){
-  //Get contact from relate - Simulating a post request being made to this route
-  relate.getContact("omalley.kerwin@gmail.com", function(response){
-    var id  = response.objects[0].id;
-    // this is really fragile, for some reason this contact has 3 names?
-    var name = (response.objects[0].properties.name[3].value).split(" ");
-    //this needs a method to pull it from relate IQ
-    //Issue with the formatting of the date in my dates.js file
-    var cohortYear = "2016";
-    var cohortName = "Kakapo";
-    var cohortDates = dates[cohortYear][cohortName];
-
-    var firstName = name[0];
-    var lastName = name[1];
-    var email = "kerwin@enspiral.com";
-    var contactToCreate = {
-      firstName: firstName,
-      lastName: lastName,
-      emailAddress: email,
-      relateId: id
-    };
-    var hellosignStudent = {
-      name: firstName + lastName,
-      email: email,
-    };
-
-    // xero.createContact(contactToCreate,
-    //   function(err){
-    //     console.log(err);
-    //   },
-    //   function(response){
-    //     console.log(response);
-    //   }
-    // );
-
-  });
 });
 
 app.get('/onboard', function (req,res){
+  relate.studentsToOnboard(function(response){
+    response.forEach(function(student){
+      var studentDetails = {
+        contactId: student.contactIds[0],
+        email: (student.fieldValues['138'][0].raw),
+        name: (student.name),
+        relateId: student.contactIds[0]
+      };
+
+      hellosign.signTemplate(studentDetails,
+      function(response){
+        if(response.statusCode === 200){
+          var updateItem = {
+            fieldValues:{
+              ////this is a test id, waiting on an actual field from malcolm
+              '64':[
+                {
+                  "raw": "yay"
+                }
+              ]
+            }
+          };
+          relate.updateStudentList(student.id,updateItem, function(response){
+            res.status(200).json("all worked");
+          });
+        }
+        else{
+          console.log(response);
+        }
+      });
+
+      xero.createContact(studentDetails,
+        function(err){
+          console.log(err);
+        },
+        function(xeroResponse){
+        //update relateiq field with xero id
+        studentDetails.contactId = xeroResponse.Response.Contacts.Contact.ContactID;
+          xero.createAnInvoice(studentDetails,
+            function(err){
+              console.log(err);
+            },
+            function(success){
+              console.log("success");
+              console.log(success.Response.Invoices.Invoice);
+              //
+              // Update relateiq fields with date invoice was drafted
+            }
+          );
+        // send off invoice
+      });
+    });
+  });
 
   //need the dates from somewhere, maybe a separate date npm?
   //get cohortDate, if confirmed cohort, check cohort date npm
   // and retrieve date.
-
-  var lineItem = {
-    type: 'Deposit',
-      amount: '1000.00',
-      accountCode:'200',
-  };
-  var tester = {
-          name: "abdul jihadi1",
-          // contactId : "2c04ddf5-ae90-4fc8-89f2-fe9a696a77bd",
-          emailAddress: "kerwin@enspiral.com",
-          //student.contactIds[0]
-          relateId: "12344442322222ss2",
-          // lineItem: lineItem,
-          date:{
-            phaseZero: '2015-10-25'
-          }
-        };
-
-
-
-
-
-  // hellosign.signTemplate(tester,function(response){
-  //   if((response.statusCode)===200){
-  //
-  //   }
-  // });
-
-  //create a contact
-  xero.createContact(tester,
-    function(err){
-      console.log(err);
-    },
-    function(response){
-    //update relateiq field with xero id
-    tester.contactId = response.Response.Contacts.Contact.ContactID;
-      xero.createAnInvoice(tester,
-        function(err){
-          console.log(err);
-        },
-        function(success){
-          console.log("success");
-          console.log(success.Response.Invoices.Invoice);
-        }
-      );
-    // send off invoice
-  });
-  // xero.createAnInvoice()
-
-
-  // relate.studentsToOnboard(function(response){
-  //   console.log(testObject);
-  //   testObject.forEach(function(student){
-  //     console.log(student.name);
-  //     hellosign.signTemplate(
-  //       {
-  //         emailAddress: (student.fieldValues['138'][0].raw),
-  //         name: (student.name)
-  //       },
-  //     function(response){
-  //       console.log(response);
-  //     });
-  //   });
-  // });
 });
