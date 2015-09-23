@@ -3,6 +3,11 @@ var testObject = require('./test.js')();
 var app = express();
 require('dotenv').load();
 var fs = require('fs');
+var googleDateSheetCredentials = {
+  sheet:process.env.DATE_SHEET,
+  secret: process.env.CLIENT_SECRET
+};
+var dates = require('@eda/dates')(googleDateSheetCredentials);
 var relateCredentials = {
   user: process.env.R_APIKEY,
   pass:process.env.R_APISECRET,
@@ -17,7 +22,6 @@ var xeroCredentials = {
 var hellosignCredentials = {
   apiKey: process.env.HELLOSIGN_KEY
 };
-var dates = require('./dates.js');
 
 var hellosign = require('@eda/hellosign-facade')(hellosignCredentials);
 var xero = require('@eda/xero-facade')(xeroCredentials);
@@ -57,11 +61,16 @@ app.get('/newcontact',function(req,res){
 app.get('/onboard', function (req,res){
   relate.studentsToOnboard(function(response){
     response.forEach(function(student){
+      function googleListDate(){
+
+      }
+
       var studentDetails = {
         contactId: student.contactIds[0],
         email: (student.fieldValues['138'][0].raw),
         name: (student.name),
-        relateId: student.contactIds[0]
+        relateId: student.contactIds[0],
+        date:googleListDate
       };
 
       hellosign.signTemplate(studentDetails,
