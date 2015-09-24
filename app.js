@@ -1,5 +1,4 @@
 var express = require('express');
-var testObject = require('./test.js')();
 var app = express();
 require('dotenv').load();
 var fs = require('fs');
@@ -60,22 +59,39 @@ app.get('/newcontact',function(req,res){
 
 app.get('/onboard', function (req,res){
   relate.studentsToOnboard(function(response){
+    console.log(response);
     response.forEach(function(student){
-      function googleListDate(){
+      var googleListDate = function(student){
+        console.log("1");
+        // console.log(student.fieldValues.hasOwnProperty('30'));
+        console.log((student.fieldValues).hasOwnProperty('30'));
+        if((student.fieldValues).hasOwnProperty('30')=== true){
+          console.log("2");
+          console.log(student.fieldValues['30'][0].raw);
+/// PROBLEM IS THAT THIS IS A LIST, NOT A TEXT FIELD 
 
-      }
+          dates.getCohortDate((student.fieldValues['30'][0].raw),function(response){
+            console.log("here?");
+            console.log(response);
+            student.date = response;
+            return;
+          });
+        }
+        student.date="";
+      };
 
       var studentDetails = {
         contactId: student.contactIds[0],
-        email: (student.fieldValues['138'][0].raw),
+        email: (student.fieldValues['150'][0].raw),
         name: (student.name),
         relateId: student.contactIds[0],
-        date:googleListDate
+        date: googleListDate(student)
       };
 
       hellosign.signTemplate(studentDetails,
       function(response){
         if(response.statusCode === 200){
+          console.log("hellosign done");
           var updateItem = {
             fieldValues:{
               ////this is a test id, waiting on an actual field from malcolm
@@ -86,9 +102,9 @@ app.get('/onboard', function (req,res){
               ]
             }
           };
-          relate.updateStudentList(student.id,updateItem, function(response){
-            res.status(200).json("all worked");
-          });
+          // relate.updateStudentList(student.id,updateItem, function(response){
+          //   res.status(200).json("all worked");
+          // });
         }
         else{
           console.log(response);
@@ -109,7 +125,7 @@ app.get('/onboard', function (req,res){
             function(success){
               console.log("success");
               console.log(success.Response.Invoices.Invoice);
-              //
+
               // Update relateiq fields with date invoice was drafted
             }
           );
