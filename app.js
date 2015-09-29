@@ -21,7 +21,7 @@ var xeroCredentials = {
 var hellosignCredentials = {
   apiKey: process.env.HELLOSIGN_KEY
 };
-
+    
 var hellosign = require('@eda/hellosign-facade')(hellosignCredentials);
 var xero = require('@eda/xero-facade')(xeroCredentials);
 var path = require('path');
@@ -68,7 +68,7 @@ app.get('/onboard', function (req,res){
         if((student.fieldValues).hasOwnProperty('30')=== true){
           console.log("2");
           console.log(student.fieldValues['30'][0].raw);
-/// PROBLEM IS THAT THIS IS A LIST, NOT A TEXT FIELD 
+/// PROBLEM IS THAT THIS IS A LIST, NOT A TEXT FIELD
 
           dates.getCohortDate((student.fieldValues['30'][0].raw),function(response){
             console.log("here?");
